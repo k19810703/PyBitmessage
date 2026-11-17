@@ -135,7 +135,8 @@ class Main(object):
         if daemon:
             state.enableGUI = False  # run without a UI
 
-        if state.enableGUI and not state.curses and not depends.check_pyqt():
+        if (state.enableGUI and not state.curses and not state.kivy
+                and not depends.check_pyqt()):
             sys.exit(
                 'PyBitmessage requires PyQt unless you want'
                 ' to run it as a daemon and interact with it'
@@ -243,6 +244,11 @@ class Main(object):
                 print('Running with curses')
                 import bitmessagecurses
                 bitmessagecurses.runwrapper()
+            elif state.kivy:
+                print('Running with kivy')
+                from bitmessagekivy.mpybit import NavigateApp
+                state.kivyapp = NavigateApp()
+                state.kivyapp.run()
             else:
                 import bitmessageqt
                 bitmessageqt.run()

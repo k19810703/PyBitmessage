@@ -1,38 +1,59 @@
-# pylint: disable=unused-import, wrong-import-position, ungrouped-imports
-# flake8: noqa:E401, E402
+"""Android entry point: start the real PyBitmessage core with the Kivy UI.
 
-"""Mock kivy app with mock threads."""
+This replaces the old mock entry point (kept as ``main_mock.py`` for the Kivy
+UI tests). Ordering matters:
+
+1. ``envprobe`` runs first so the ``PROBE`` lines are the first thing in
+   logcat (milestone M2.1.1);
+2. ``BITMESSAGE_HOME`` is pointed at Android app storage **before** importing
+   anything that pulls in :mod:`debug` -- ``debug`` calls
+   ``helper_startup.loadConfig()`` at import time, and without a writable home
+   the config lookup would fail (milestone M2.4.1);
+3. only then the core is imported and started with ``state.kivy = True`` so
+   ``bitmessagemain`` skips the PyQt requirement and dispatches to Kivy
+   (milestone M2.3).
+"""
 
 import os
 
-# M2.1.1: capability probe must run before anything else so the logcat lines
-# are the first thing we see. It never raises by design.
-from envprobe import run as probe_environment  # noqa:E402
+from envprobe import run as probe_environment  # noqa: E402
 
 probe_environment()
 
-from kivy.config import Config  # pylint: disable=import-error, E402
 
-import pybitmessage.state as state
-from pybitmessage.bitmessagekivy.mpybit import NavigateApp  # noqa:E402
-from pybitmessage.mockbm import multiqueue
-from pybitmessage.mockbm.class_addressGenerator import FakeAddressGenerator  # noqa:E402
-from pybitmessage.mockbm import network  # noqa:E402
+def prepare_home():
+    """Point BITMESSAGE_HOME at a writable app-private directory."""
+    if os.environ.get('BITMESSAGE_HOME'):
+        return os.environ['BITMESSAGE_HOME']
 
-stats = network.stats
-objectracker = network.objectracker
+    try:
+        # python-for-android helper; absent on the desktop
+        from android.storage import app_storage_path
+        base = app_storage_path()
+    except Exception:  # noqa: BLE001 - desktop run, or very old p4a
+        base = os.path.dirname(os.path.abspath(__file__))
+
+    target = os.path.join(base, 'bitmessage')
+    try:
+        if not os.path.isdir(target):
+            os.makedirs(target)
+    except OSError:
+        target = base
+    os.environ['BITMESSAGE_HOME'] = target
+    print('BITMESSAGE_HOME=%s' % target)
+    return target
 
 
 def main():
-    """main method for starting threads"""
-    addressGeneratorThread = FakeAddressGenerator()
-    addressGeneratorThread.daemon = True
-    addressGeneratorThread.start()
-    state.kivyapp = NavigateApp()
-    state.kivyapp.run()
-    addressGeneratorThread.stopThread()
+    """Start the core with the Kivy user interface."""
+    prepare_home()
+
+    import state
+    import bitmessagemain
+
+    state.kivy = True
+    bitmessagemain.main()
 
 
-if __name__ == "__main__":
-    os.environ['INSTALL_TESTS'] = "True"
+if __name__ == '__main__':
     main()

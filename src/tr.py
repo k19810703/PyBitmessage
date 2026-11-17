@@ -39,7 +39,10 @@ def translateText(context, text, n=None):
         enableGUI = state.enableGUI
     except AttributeError:  # inside the plugin
         enableGUI = True
-    if enableGUI:
+    # Kivy has no Qt translation objects; without this guard every _translate()
+    # call fell into the PyQt import below, which does os._exit(0) -- a silent
+    # exit with no traceback and no log (the M2.3 "starts and vanishes" case).
+    if enableGUI and not getattr(state, 'kivy', False):
         try:
             from PyQt4 import QtCore, QtGui  # pylint: disable=import-error
         except Exception as err:
