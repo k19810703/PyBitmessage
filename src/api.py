@@ -237,6 +237,7 @@ class singleAPI(StoppableThread):
                 while state.shutdown == 0:
                     self.handle_request()
 
+        se = None
         for attempt in range(50):
             try:
                 if attempt > 0:
@@ -251,6 +252,10 @@ class singleAPI(StoppableThread):
             except socket.error as e:
                 if e.errno in (errno.EADDRINUSE, errno.WSAEADDRINUSE):
                     continue
+                # e.g. EACCES when the app has no INTERNET permission
+                logger.error(
+                    'Cannot bind API listener on port %s: %s', port, e)
+                continue
             else:
                 if attempt > 0:
                     logger.warning('Setting apiport to %s', port)
@@ -258,6 +263,11 @@ class singleAPI(StoppableThread):
                         'bitmessagesettings', 'apiport', str(port))
                     config.save()
                 break
+
+        if se is None:
+            raise RuntimeError(
+                'API listener could not be started (missing INTERNET '
+                'permission?)')
 
         se.register_instance(BMRPCDispatcher())
         se.register_introspection_functions()

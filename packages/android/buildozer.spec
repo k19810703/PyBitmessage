@@ -88,7 +88,9 @@ fullscreen = 0
 #android.presplash_lottie = "path/to/lottie/file.json"
 
 # (list) Permissions
-#android.permissions = INTERNET
+# INTERNET is required both for P2P (TCP 8444) and for binding the local API
+# socket: Android's network sandbox denies socket() to apps without it.
+android.permissions = INTERNET, ACCESS_NETWORK_STATE
 
 # (int) Android API to use  (targetSdkVersion AND compileSdkVersion)
 # note: when changing, Dockerfile also needs to be changed to install corresponding build tools
