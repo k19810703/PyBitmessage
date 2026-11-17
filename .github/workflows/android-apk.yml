@@ -34,13 +34,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ubuntu-latest 镜像默认 JDK 已是 25，Gradle 8.14 只认到 24，
+      # 会报 "Unsupported class file major version 69"。必须显式钉 17。
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: System dependencies
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             build-essential autoconf automake libtool libltdl-dev \
             libffi-dev libssl-dev pkg-config cmake zip unzip \
-            openjdk-17-jdk libzbar0 gettext
+            libzbar0 gettext
           sudo locale-gen en_US.UTF-8 || true
 
       - name: Setup Python
@@ -78,6 +86,7 @@ jobs:
           set -o pipefail
           mkdir -p ~/.gradle
           echo "org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" > ~/.gradle/gradle.properties
+          echo "JAVA_HOME=$JAVA_HOME"; java -version
           buildozer android debug 2>&1 | tee build.log
 
       - name: Save p4a toolchain cache
