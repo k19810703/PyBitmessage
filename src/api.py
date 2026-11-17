@@ -344,7 +344,7 @@ class command(object):  # pylint: disable=too-few-public-methods
         wrapper._cmd = self.aliases
         wrapper.__doc__ = """Commands: *%s*
 
-        """ % ', '.join(self.aliases) + wrapper.__doc__.lstrip()
+        """ % ', '.join(self.aliases) + (wrapper.__doc__ or '').lstrip()
         return wrapper
 
 
