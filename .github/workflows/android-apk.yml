@@ -76,6 +76,7 @@ jobs:
       - name: Build debug APK
         working-directory: packages/android
         run: |
+          set -o pipefail
           mkdir -p ~/.gradle
           echo "org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" > ~/.gradle/gradle.properties
           buildozer android debug 2>&1 | tee build.log

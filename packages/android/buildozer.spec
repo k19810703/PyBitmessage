@@ -95,13 +95,13 @@ fullscreen = 0
 android.api = 33
 
 # (int) Minimum API required. You will need to set the android.ndk_api to be as low as this value.
-android.minapi = 21
+android.minapi = 24
 
 # (str) Android NDK version to use
 android.ndk = 25b
 
 # (int) Android NDK API to use (optional). This is the minimum API your app will support.
-android.ndk_api = 21
+android.ndk_api = 24
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 android.private_storage = True
@@ -225,7 +225,7 @@ android.accept_sdk_license = True
 #android.copy_libs = 1
 
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.archs = armeabi-v7a, arm64-v8a, x86_64
+android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
