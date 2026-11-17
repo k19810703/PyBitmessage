@@ -277,7 +277,14 @@ def check_openssl():
             # pylint: disable=no-member
             paths.insert(0, os.path.join(sys._MEIPASS, 'libeay32.dll'))
     else:
-        paths = ['libcrypto.so', 'libcrypto.so.1.0.0']
+        # Android/python-for-android only ships versioned sonames, and the
+        # unversioned "libcrypto.so" resolves to the system library which is
+        # outside the app's linker namespace (dlopen -> OSError).
+        paths = [
+            'libcrypto.so', 'libcrypto.so.1.0.0',
+            'libcrypto1.1.so', 'libcrypto.so.1.1',
+            'libcrypto3.so', 'libcrypto.so.3',
+        ]
     if sys.platform == 'darwin':
         paths.extend([
             'libcrypto.dylib',
@@ -336,7 +343,18 @@ def check_openssl():
                 ' and ECDSA enabled.', ', '.join(matches))
             return False
         return True
-    return False
+
+    # Last resort: no library name above could be dlopen()ed, but the running
+    # interpreter may still have a usable OpenSSL (the Android case). pyelliptic
+    # has already proven it can load libcrypto at that point.
+    try:
+        import ssl
+        logger.warning(
+            'Could not dlopen libcrypto by name; falling back to the ssl '
+            'module: %s', ssl.OPENSSL_VERSION)
+        return True
+    except ImportError:
+        return False
 
 
 # ..todo:: The minimum versions of pythondialog and dialog need to be determined
