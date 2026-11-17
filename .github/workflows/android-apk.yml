@@ -56,6 +56,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      # p4a v2024.01.21 的 jpeg recipe 用 libjpeg-turbo 2.0.1，其 CMakeLists 仍是
+      # cmake_minimum_required(VERSION 2.8.12)；runner 自带的 CMake 4.x 已移除 <3.5 兼容，
+      # 会报 "Compatibility with CMake < 3.5 has been removed"。这里钉回 3.31。
+      - name: Pin CMake 3.31
+        run: |
+          python -m pip install 'cmake==3.31.6'
+          sudo ln -sf "$(command -v cmake)" /usr/local/bin/cmake
+          cmake --version | head -1
+
+
       - name: Install buildozer
         run: |
           python -m pip install --upgrade pip
