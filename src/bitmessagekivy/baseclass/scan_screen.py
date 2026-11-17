@@ -8,7 +8,11 @@ QR code Scan Screen used in message composer to get recipient address
 
 import os
 import logging
-import cv2
+
+try:
+    import cv2
+except ImportError:  # 未安装 opencv（安卓 MVP 阶段不带相机扫码）
+    cv2 = None
 
 from kivy.clock import Clock
 from kivy.lang import Builder
@@ -40,6 +44,10 @@ class ScanScreen(Screen):
     def check_camera(self):
         """This method is used for checking camera avaibility"""
         if platform != "android":
+            if cv2 is None:
+                logger.debug("opencv not installed, camera unavailable")
+                self.camera_available = False
+                return
             cap = cv2.VideoCapture(0)
             is_cam_open = cap.isOpened()
             while is_cam_open:

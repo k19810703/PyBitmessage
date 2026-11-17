@@ -62,16 +62,15 @@ jobs:
           cp -r src/bitmessagekivy src/backend src/mockbm src/images src/pybitmessage
           ls src/pybitmessage | head -20
 
-      - name: Cache python-for-android toolchain
-        uses: actions/cache@v4
+      # Android SDK / NDK / p4a 源码都在 ~/.buildozer 里，缓存它可以把首次的 ~8 分钟下载省掉。
+      # 用 restore + save 拆分，保证构建失败时也能存下已下载的 SDK/NDK。
+      - name: Restore p4a toolchain cache
+        uses: actions/cache/restore@v4
         with:
-          path: |
-            ~/.buildozer
-            packages/android/.buildozer
-            ~/.gradle
-          key: p4a-v1-${{ runner.os }}-${{ hashFiles('packages/android/buildozer.spec') }}
+          path: ~/.buildozer
+          key: p4a-v2-${{ runner.os }}-${{ hashFiles('packages/android/buildozer.spec') }}
           restore-keys: |
-            p4a-v1-${{ runner.os }}-
+            p4a-v2-${{ runner.os }}-
 
       - name: Build debug APK
         working-directory: packages/android
@@ -80,6 +79,13 @@ jobs:
           mkdir -p ~/.gradle
           echo "org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" > ~/.gradle/gradle.properties
           buildozer android debug 2>&1 | tee build.log
+
+      - name: Save p4a toolchain cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.buildozer
+          key: p4a-v2-${{ runner.os }}-${{ hashFiles('packages/android/buildozer.spec') }}
 
       - name: Show artifacts and tail log
         if: always()
