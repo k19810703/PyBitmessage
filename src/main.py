@@ -4,7 +4,14 @@
 """Mock kivy app with mock threads."""
 
 import os
-from kivy.config import Config  # pylint: disable=import-error
+
+# M2.1.1: capability probe must run before anything else so the logcat lines
+# are the first thing we see. It never raises by design.
+from envprobe import run as probe_environment  # noqa:E402
+
+probe_environment()
+
+from kivy.config import Config  # pylint: disable=import-error, E402
 
 import pybitmessage.state as state
 from pybitmessage.bitmessagekivy.mpybit import NavigateApp  # noqa:E402
