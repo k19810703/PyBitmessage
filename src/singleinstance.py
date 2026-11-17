@@ -35,7 +35,16 @@ class singleinstance(object):
             import bitmessageqt
             bitmessageqt.init()
 
-        self.lock()
+        try:
+            self.lock()
+        except SystemExit:
+            # Genuine "another instance is already running" -- keep it fatal.
+            raise
+        except Exception as exc:  # noqa: BLE001 - never block startup
+            # Android can have odd filesystems where flock() is unavailable;
+            # the OS already guarantees one process per app, so degrade to a
+            # warning instead of refusing to start.
+            print('WARNING: single instance lock unavailable: %s' % exc)
 
         self.initialized = True
         atexit.register(self.cleanup)
