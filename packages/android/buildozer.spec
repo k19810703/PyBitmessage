@@ -13,7 +13,7 @@ package.domain = at.bitmessage
 source.dir = ../../src
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,tflite,sql,json
+source.include_exts = py,png,jpg,kv,atlas,tflite,sql,json,ini,pem
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
