@@ -97,12 +97,20 @@ def _sqlite3():
 
 
 def _msgpack():
+    """Mirror the real fallback chain used by helper_msgcoding."""
     try:
         import msgpack
         return 'msgpack %s' % getattr(msgpack, '__version__', '?')
     except ImportError:
+        pass
+    try:
         import umsgpack
         return 'umsgpack %s (fallback)' % getattr(umsgpack, '__version__', '?')
+    except ImportError:
+        pass
+    import fallback.umsgpack.umsgpack as bundled
+    return 'bundled umsgpack %s (fallback)' % getattr(
+        bundled, '__version__', '?')
 
 
 def _pycryptodome():

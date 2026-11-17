@@ -197,7 +197,7 @@ def signals(_, __):
     """Signal handler"""
     logger.warning('Got signal, terminating')
     for thread in threading.enumerate():
-        if thread.isAlive() and isinstance(thread, StoppableThread):
+        if thread.is_alive() and isinstance(thread, StoppableThread):
             thread.stopThread()
 
 

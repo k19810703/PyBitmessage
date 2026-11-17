@@ -432,10 +432,8 @@ def check_dependencies(verbose=False, optional=False):
 
     has_all_dependencies = True
 
-    # Python 2.7.4 is the required minimum.
+    # Python 2.7.4 is the historical minimum.
     # (https://bitmessage.org/forum/index.php?topic=4081.0)
-    # Python 3+ is not supported, but it is still useful to provide
-    # information about our other requirements.
     logger.info('Python version: %s', sys.version)
     if sys.hexversion < 0x20704F0:
         logger.error(
@@ -443,10 +441,12 @@ def check_dependencies(verbose=False, optional=False):
             ' (but not Python 3+)')
         has_all_dependencies = False
     if six.PY3:
-        logger.error(
-            'PyBitmessage does not support Python 3+. Python 2.7.4'
-            ' or greater is required. Python 2.7.18 is recommended.')
-        sys.exit()
+        # The Python 3 port is still in progress (android-port branch).
+        # Aborting here made it impossible to run anything on Python 3, so it
+        # is a warning now; failures surface as real tracebacks instead.
+        logger.warning(
+            'Running on Python %s; the Python 3 port is incomplete.',
+            sys.version.split()[0])
 
     # FIXME: This needs to be uncommented when more of the code is python3 compatible
     # if sys.hexversion >= 0x3000000 and sys.hexversion < 0x3060000:

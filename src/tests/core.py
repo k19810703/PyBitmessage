@@ -6,7 +6,10 @@ Tests for core and those that do not work outside
 import atexit
 import os
 import pickle  # nosec
-import Queue
+try:
+    import queue as Queue
+except ImportError:
+    import Queue
 import random  # nosec
 import shutil
 import socket
