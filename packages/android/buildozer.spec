@@ -253,7 +253,10 @@ android.release_artifact = apk
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+# p4a 默认从 master 取，其 python3 recipe 已升到 3.14；而 PyBitmessage v0.6 依赖
+# configparser.SafeConfigParser / asyncore / smtpd，这些在 3.12+ 已被移除。
+# v2024.01.21 的 python3 recipe 是 3.11.5，正好可用。
+p4a.branch = v2024.01.21
 
 # (str) python-for-android git clone directory (if empty, it will be automatically cloned from github)
 #p4a.source_dir =
