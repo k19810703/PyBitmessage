@@ -18,7 +18,9 @@ if os.environ.get('INSTALL_TESTS', False) and not state.backend_py3_compatible:
     stats = kivy_main.network.stats
     object_tracker = kivy_main.network.objectracker
 else:
-    from pybitmessage.network import stats, objectracker as object_tracker
+    # Flat import: inside the APK the core packages live at the app root
+    # (no pybitmessage/network copy exists), so a dotted import fails.
+    from network import stats, objectracker as object_tracker  # noqa:E402
 
 
 class NetworkStat(Screen):
