@@ -304,9 +304,15 @@ class _OpenSSL(object):
 
         self.EVP_CipherInit_ex = self._lib.EVP_CipherInit_ex
         self.EVP_CipherInit_ex.restype = ctypes.c_int
+        # Real signature: (ctx, cipher, engine, key, iv, enc). Declaring only
+        # three argtypes made ctypes pass key/iv as C ints, truncating the
+        # pointers on 64-bit builds, so every EVP_CipherUpdate failed.
         self.EVP_CipherInit_ex.argtypes = [ctypes.c_void_p,
                                            ctypes.c_void_p,
-                                           ctypes.c_void_p]
+                                           ctypes.c_void_p,
+                                           ctypes.c_void_p,
+                                           ctypes.c_void_p,
+                                           ctypes.c_int]
 
         self.EVP_CIPHER_CTX_new = self._lib.EVP_CIPHER_CTX_new
         self.EVP_CIPHER_CTX_new.restype = ctypes.c_void_p
